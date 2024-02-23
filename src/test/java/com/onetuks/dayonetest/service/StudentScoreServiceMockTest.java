@@ -15,8 +15,7 @@ import com.onetuks.dayonetest.repository.StudentPassRepository;
 import com.onetuks.dayonetest.repository.StudentScoreRepository;
 import java.util.List;
 import java.util.stream.Stream;
-import net.bytebuddy.asm.Advice.Argument;
-import org.assertj.core.api.AbstractUriAssert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -24,15 +23,28 @@ import org.mockito.Mockito;
 
 class StudentScoreServiceMockTest {
 
+    private StudentScoreService studentScoreService;
+    private StudentScoreRepository studentScoreRepository;
+    private StudentPassRepository studentPassRepository;
+    private StudentFailRepository studentFailRepository;
+
+    @BeforeEach
+    void setUp() {
+        studentScoreRepository = Mockito.mock(StudentScoreRepository.class);
+        studentPassRepository = Mockito.mock(StudentPassRepository.class);
+        studentFailRepository = Mockito.mock(StudentFailRepository.class);
+
+        studentScoreService = new StudentScoreService(
+                studentScoreRepository,
+                studentPassRepository,
+                studentFailRepository
+        );
+    }
+
     @Test
     @DisplayName("첫 전째 Mock 테스트")
     void firstSaveScoreMockTest() {
         // given
-        StudentScoreService studentScoreService = new StudentScoreService(
-                Mockito.mock(StudentScoreRepository.class),
-                Mockito.mock(StudentPassRepository.class),
-                Mockito.mock(StudentFailRepository.class)
-        );
         String givenStudentName = "onetuks";
         String givenExam = "testexam";
         Integer givenKoreanScore = 80;
@@ -53,16 +65,6 @@ class StudentScoreServiceMockTest {
     @DisplayName("성적 저장 로직 검증")
     void saveScoreMockTest() {
         // Given
-        StudentScoreRepository studentScoreRepository = Mockito.mock(StudentScoreRepository.class);
-        StudentPassRepository studentPassRepository = Mockito.mock(StudentPassRepository.class);
-        StudentFailRepository studentFailRepository = Mockito.mock(StudentFailRepository.class);
-
-        StudentScoreService studentScoreService = new StudentScoreService(
-                studentScoreRepository,
-                studentPassRepository,
-                studentFailRepository
-        );
-
         String givenStudentName = "onetuks";
         String givenExam = "testexam";
         Integer givenKoreanScore = 80;
@@ -78,6 +80,7 @@ class StudentScoreServiceMockTest {
                 .englishScore(givenEnglishScore)
                 .mathScore(givenMathScore)
                 .build();
+
         StudentPass expectStudentPass = StudentPass
                 .builder()
                 .studentName(givenStudentName)
@@ -129,16 +132,6 @@ class StudentScoreServiceMockTest {
     @DisplayName("성적 저장 로직 검증 / 60점 미만인 경우")
     void saveScoreMockTest2() {
         // Given
-        StudentScoreRepository studentScoreRepository = Mockito.mock(StudentScoreRepository.class);
-        StudentPassRepository studentPassRepository = Mockito.mock(StudentPassRepository.class);
-        StudentFailRepository studentFailRepository = Mockito.mock(StudentFailRepository.class);
-
-        StudentScoreService studentScoreService = new StudentScoreService(
-                studentScoreRepository,
-                studentPassRepository,
-                studentFailRepository
-        );
-
         String givenStudentName = "onetuks";
         String givenExam = "testexam";
         Integer givenKoreanScore = 10;
@@ -191,40 +184,42 @@ class StudentScoreServiceMockTest {
         );
 
         Mockito.verify(studentPassRepository, Mockito.times(0)).save(Mockito.any());
+
+        Mockito.verify(studentFailRepository, Mockito.times(1)).save(studentFailArgumentCaptor.capture());
         StudentFail capturedStudentFail = studentFailArgumentCaptor.getValue();
-        assertAll("studentPass",
+        assertAll("studentFail",
                 () -> assertEquals(expectStudentFail.getStudentName(), capturedStudentFail.getStudentName()),
                 () -> assertEquals(expectStudentFail.getExam(), capturedStudentFail.getExam()),
                 () -> assertEquals(expectStudentFail.getAverageScore(), capturedStudentFail.getAverageScore())
-        );
-
-        Mockito.verify(studentFailRepository, Mockito.times(1)).save(studentFailArgumentCaptor.capture());
-    }
+        );    }
 
     @Test
     @DisplayName("합격자 명단 가져오기 검증")
     void getPassStudentsListTest() {
         // Given
-        StudentScoreRepository studentScoreRepository = Mockito.mock(StudentScoreRepository.class);
-        StudentPassRepository studentPassRepository = Mockito.mock(StudentPassRepository.class);
-        StudentFailRepository studentFailRepository = Mockito.mock(StudentFailRepository.class);
-
-        StudentPass expectStudent1 = StudentPass.builder().id(1L).studentName("onetuks").exam("testexam")
-                .averageScore(70.0).build();
-        StudentPass expectStudent2 = StudentPass.builder().id(2L).studentName("test").exam("testexam")
-                .averageScore(80.0).build();
-        StudentPass notExpectStudent = StudentPass.builder().id(3L).studentName("iamnot").exam("secondexam")
-                .averageScore(90.0).build();
+        StudentPass expectStudent1 = StudentPass.builder()
+                .id(1L)
+                .studentName("onetuks")
+                .exam("testexam")
+                .averageScore(70.0)
+                .build();
+        StudentPass expectStudent2 = StudentPass.builder()
+                .id(2L)
+                .studentName("test")
+                .exam("testexam")
+                .averageScore(80.0)
+                .build();
+        StudentPass notExpectStudent = StudentPass.builder()
+                .id(3L)
+                .studentName("iamnot")
+                .exam("secondexam")
+                .averageScore(90.0)
+                .build();
 
         Mockito.when(studentPassRepository.findAll()).thenReturn(List.of(
                 expectStudent1, expectStudent2, notExpectStudent
         ));
 
-        StudentScoreService studentScoreService = new StudentScoreService(
-                studentScoreRepository,
-                studentPassRepository,
-                studentFailRepository
-        );
         String givenTestExam = "testexam";
 
         // When
