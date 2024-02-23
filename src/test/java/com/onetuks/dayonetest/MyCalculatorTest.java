@@ -2,6 +2,7 @@ package com.onetuks.dayonetest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class MyCalculatorTest {
@@ -68,6 +69,7 @@ class MyCalculatorTest {
     }
 
     @Test
+    @DisplayName("MyCalculator 0으로 나누었을 때에는 ZeroDivisionException이 발생해야 한다")
     void divideZeroTest() {
         // Given
         MyCalculator myCalculator = new MyCalculator(10.0);
