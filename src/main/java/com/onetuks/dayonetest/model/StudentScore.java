@@ -21,6 +21,7 @@ public class StudentScore {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "student_score_id")
     private Long id;
 
     @Column(name = "exam")
