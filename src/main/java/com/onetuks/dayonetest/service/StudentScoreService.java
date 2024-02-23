@@ -65,6 +65,7 @@ public class StudentScoreService {
 
         return studentPasses.stream()
                 .filter(pass -> Objects.equals(pass.getExam(), exam))
+                .filter(pass -> pass.getAverageScore() >= 60)
                 .map(pass -> new ExamPassStudentResponse(pass.getStudentName(), pass.getAverageScore()))
                 .toList();
     }
@@ -74,6 +75,7 @@ public class StudentScoreService {
 
         return studentFails.stream()
                 .filter(fail -> Objects.equals(fail.getExam(), exam))
+                .filter(fail -> fail.getAverageScore() < 60)
                 .map(fail -> new ExamFailStudentResponse(fail.getStudentName(), fail.getAverageScore()))
                 .toList();
     }
