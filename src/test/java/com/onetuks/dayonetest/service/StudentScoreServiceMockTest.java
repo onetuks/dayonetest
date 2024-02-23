@@ -10,6 +10,7 @@ import com.onetuks.dayonetest.controller.response.ExamPassStudentResponse;
 import com.onetuks.dayonetest.model.StudentFail;
 import com.onetuks.dayonetest.model.StudentPass;
 import com.onetuks.dayonetest.model.StudentScore;
+import com.onetuks.dayonetest.model.StudentScoreFixture;
 import com.onetuks.dayonetest.model.StudentScoreTestDataBuilder;
 import com.onetuks.dayonetest.repository.StudentFailRepository;
 import com.onetuks.dayonetest.repository.StudentPassRepository;
@@ -121,7 +122,8 @@ class StudentScoreServiceMockTest {
     @DisplayName("성적 저장 로직 검증 / 60점 미만인 경우")
     void saveScoreMockTest2() {
         // Given
-        StudentScore expectStudentScore = StudentScoreTestDataBuilder.failed().build();
+        // Fixture 장점은 Builder 패턴의 높은 자유도로 인한 오류를 줄일 수 있다는 점
+        StudentScore expectStudentScore = StudentScoreFixture.failed();
         StudentPass expectStudentFail = StudentPass
                 .builder()
                 .studentName(expectStudentScore.getStudentName())
