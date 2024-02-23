@@ -10,6 +10,7 @@ import com.onetuks.dayonetest.controller.response.ExamPassStudentResponse;
 import com.onetuks.dayonetest.model.StudentFail;
 import com.onetuks.dayonetest.model.StudentPass;
 import com.onetuks.dayonetest.model.StudentScore;
+import com.onetuks.dayonetest.model.StudentScoreTestDataBuilder;
 import com.onetuks.dayonetest.repository.StudentFailRepository;
 import com.onetuks.dayonetest.repository.StudentPassRepository;
 import com.onetuks.dayonetest.repository.StudentScoreRepository;
@@ -62,33 +63,21 @@ class StudentScoreServiceMockTest {
     }
 
     @Test
-    @DisplayName("성적 저장 로직 검증")
+    @DisplayName("성적 저장 로직 검증 / 60점 이상인 경우")
     void saveScoreMockTest() {
         // Given
-        String givenStudentName = "onetuks";
-        String givenExam = "testexam";
-        Integer givenKoreanScore = 80;
-        Integer givenEnglishScore = 100;
-        Integer givenMathScore = 60;
-
-        // 테스트 대상 메소드에 매개변수가 제대로 전달되는지 검증하기 위해 ArgumentCaptor 활용
-        StudentScore expectStudentScore = StudentScore
-                .builder()
-                .studentName(givenStudentName)
-                .exam(givenExam)
-                .koreanScore(givenKoreanScore)
-                .englishScore(givenEnglishScore)
-                .mathScore(givenMathScore)
+        StudentScore expectStudentScore = StudentScoreTestDataBuilder
+                .passed()
+                .studentName("Student new Name") // Test Data Builder 패턴은 이렇게 자유도 있게 활용 가능한 것이 특징
                 .build();
-
         StudentPass expectStudentPass = StudentPass
                 .builder()
-                .studentName(givenStudentName)
-                .exam(givenExam)
+                .studentName(expectStudentScore.getStudentName())
+                .exam(expectStudentScore.getExam())
                 .averageScore(new MyCalculator()
-                        .add(givenKoreanScore.doubleValue())
-                        .add(givenEnglishScore.doubleValue())
-                        .add(givenMathScore.doubleValue())
+                        .add(expectStudentScore.getKoreanScore().doubleValue())
+                        .add(expectStudentScore.getEnglishScore().doubleValue())
+                        .add(expectStudentScore.getMathScore().doubleValue())
                         .divide(3.0)
                         .getResult())
                 .build();
@@ -98,11 +87,11 @@ class StudentScoreServiceMockTest {
 
         // When
         studentScoreService.saveScore(
-                givenStudentName,
-                givenExam,
-                givenKoreanScore,
-                givenEnglishScore,
-                givenMathScore
+                expectStudentScore.getStudentName(),
+                expectStudentPass.getExam(),
+                expectStudentScore.getKoreanScore(),
+                expectStudentScore.getEnglishScore(),
+                expectStudentScore.getMathScore()
         );
 
         // Then
@@ -132,29 +121,15 @@ class StudentScoreServiceMockTest {
     @DisplayName("성적 저장 로직 검증 / 60점 미만인 경우")
     void saveScoreMockTest2() {
         // Given
-        String givenStudentName = "onetuks";
-        String givenExam = "testexam";
-        Integer givenKoreanScore = 10;
-        Integer givenEnglishScore = 10;
-        Integer givenMathScore = 10;
-
-        StudentScore expectStudentScore = StudentScore
+        StudentScore expectStudentScore = StudentScoreTestDataBuilder.failed().build();
+        StudentPass expectStudentFail = StudentPass
                 .builder()
-                .studentName(givenStudentName)
-                .exam(givenExam)
-                .koreanScore(givenKoreanScore)
-                .englishScore(givenEnglishScore)
-                .mathScore(givenMathScore)
-                .build();
-
-        StudentFail expectStudentFail = StudentFail
-                .builder()
-                .studentName(givenStudentName)
-                .exam(givenExam)
+                .studentName(expectStudentScore.getStudentName())
+                .exam(expectStudentScore.getExam())
                 .averageScore(new MyCalculator()
-                        .add(givenKoreanScore.doubleValue())
-                        .add(givenEnglishScore.doubleValue())
-                        .add(givenMathScore.doubleValue())
+                        .add(expectStudentScore.getKoreanScore().doubleValue())
+                        .add(expectStudentScore.getEnglishScore().doubleValue())
+                        .add(expectStudentScore.getMathScore().doubleValue())
                         .divide(3.0)
                         .getResult())
                 .build();
@@ -164,11 +139,11 @@ class StudentScoreServiceMockTest {
 
         // When
         studentScoreService.saveScore(
-                givenStudentName,
-                givenExam,
-                givenKoreanScore,
-                givenEnglishScore,
-                givenMathScore
+                expectStudentScore.getStudentName(),
+                expectStudentScore.getExam(),
+                expectStudentScore.getKoreanScore(),
+                expectStudentScore.getEnglishScore(),
+                expectStudentScore.getMathScore()
         );
 
         // Then
@@ -238,10 +213,6 @@ class StudentScoreServiceMockTest {
     @DisplayName("불합격자 명단 가져오기 검증")
     void getFailStudentsListTest() {
         // Given
-        StudentScoreRepository studentScoreRepository = Mockito.mock(StudentScoreRepository.class);
-        StudentPassRepository studentPassRepository = Mockito.mock(StudentPassRepository.class);
-        StudentFailRepository studentFailRepository = Mockito.mock(StudentFailRepository.class);
-
         String givenTestExam = "testexam";
 
         StudentFail expectStudent1 = StudentFail.builder().id(1L).studentName("onetuks").exam(givenTestExam)
@@ -254,12 +225,6 @@ class StudentScoreServiceMockTest {
         Mockito.when(studentFailRepository.findAll()).thenReturn(List.of(
                 expectStudent1, expectStudent2, notExpectStudent
         ));
-
-        StudentScoreService studentScoreService = new StudentScoreService(
-                studentScoreRepository,
-                studentPassRepository,
-                studentFailRepository
-        );
 
         // When
         List<ExamFailStudentResponse> result = studentScoreService.getFailStudentsList(givenTestExam);
