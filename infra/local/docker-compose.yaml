@@ -7,7 +7,7 @@ services:
       MYSQL_DATABASE: score
       MYSQL_ROOT_PASSWORD: password
     ports:
-      - 3306:3306
+      - '3306:3306'
     volumes:
       - ./dbdata:/var/lib/mysql
   local-db-migrate:
@@ -21,3 +21,7 @@ services:
     volumes:
       - ../../db/flyway.conf:/flyway/conf/flyway.conf
       - ../../db/migration:/flyway/sql
+  local-redis:
+    image: redis:6
+    ports:
+      - '6379:6379'

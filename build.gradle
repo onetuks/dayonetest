@@ -36,6 +36,10 @@ dependencies {
     // TestContainers
     testImplementation 'org.testcontainers:testcontainers:1.19.0'
 
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    testImplementation "com.redis.testcontainers:testcontainers-redis-junit:1.6.4"
+
     // Mockito
 //    testImplementation 'org.mockito:mockito-core:3.+'
 }

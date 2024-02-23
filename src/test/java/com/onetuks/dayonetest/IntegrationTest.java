@@ -1,5 +1,6 @@
 package com.onetuks.dayonetest;
 
+import com.redis.testcontainers.RedisContainer;
 import jakarta.transaction.Transactional;
 import java.io.File;
 import java.time.Duration;
@@ -21,6 +22,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 public class IntegrationTest {
 
     static DockerComposeContainer rdbms;
+    static RedisContainer redis;
 
     static {
         rdbms = new DockerComposeContainer(new File("infra/test/docker-compose.yaml"))
@@ -37,8 +39,10 @@ public class IntegrationTest {
                                 .withStartupTimeout(Duration.ofSeconds(300))
                 );
 
-
         rdbms.start();
+
+        redis = new RedisContainer(RedisContainer.DEFAULT_IMAGE_NAME.withTag("6"));
+        redis.start();
     }
 
     // ApplicationContext 가 처음 초기화될 때 TestContainers 속성이 아니라, application.properties 설정값을 사용하기 때문에 DB 연결 안 되는 문제 해결하려는 목적
@@ -53,6 +57,12 @@ public class IntegrationTest {
             int rdbmsPort = rdbms.getServicePort("local-db", 3306);
 
             properties.put("spring.datasource.url", "jdbc:mysql://" + rdbmsHost + ":" + rdbmsPort + "/score");
+
+            String redistHost = redis.getHost();
+            int redisPort = redis.getFirstMappedPort();
+
+            properties.put("spring.data.redis.host", redistHost);
+            properties.put("spring.data.redis.port", String.valueOf(redisPort));
 
             TestPropertyValues.of(properties)
                     .applyTo(applicationContext);
