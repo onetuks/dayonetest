@@ -4,11 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
-import com.onetuks.dayonetest.MyCalculator;
 import com.onetuks.dayonetest.controller.response.ExamFailStudentResponse;
 import com.onetuks.dayonetest.controller.response.ExamPassStudentResponse;
 import com.onetuks.dayonetest.model.StudentFail;
+import com.onetuks.dayonetest.model.StudentFailFixture;
 import com.onetuks.dayonetest.model.StudentPass;
+import com.onetuks.dayonetest.model.StudentPassFixture;
 import com.onetuks.dayonetest.model.StudentScore;
 import com.onetuks.dayonetest.model.StudentScoreFixture;
 import com.onetuks.dayonetest.model.StudentScoreTestDataBuilder;
@@ -61,27 +62,19 @@ class StudentScoreServiceMockTest {
                 givenEnglishScore,
                 givenMathScore
         );
+
+        // Then
+        ArgumentCaptor<StudentScore> studentScoreArgumentCaptor = ArgumentCaptor.forClass(StudentScore.class);
+
+        Mockito.verify(studentScoreRepository, Mockito.times(1)).save(studentScoreArgumentCaptor.capture());
     }
 
     @Test
     @DisplayName("성적 저장 로직 검증 / 60점 이상인 경우")
     void saveScoreMockTest() {
         // Given
-        StudentScore expectStudentScore = StudentScoreTestDataBuilder
-                .passed()
-                .studentName("Student new Name") // Test Data Builder 패턴은 이렇게 자유도 있게 활용 가능한 것이 특징
-                .build();
-        StudentPass expectStudentPass = StudentPass
-                .builder()
-                .studentName(expectStudentScore.getStudentName())
-                .exam(expectStudentScore.getExam())
-                .averageScore(new MyCalculator()
-                        .add(expectStudentScore.getKoreanScore().doubleValue())
-                        .add(expectStudentScore.getEnglishScore().doubleValue())
-                        .add(expectStudentScore.getMathScore().doubleValue())
-                        .divide(3.0)
-                        .getResult())
-                .build();
+        StudentScore expectStudentScore = StudentScoreTestDataBuilder.passed().build();
+        StudentPass expectStudentPass = StudentPassFixture.create(expectStudentScore);
 
         ArgumentCaptor<StudentScore> studentScoreArgumentCaptor = ArgumentCaptor.forClass(StudentScore.class);
         ArgumentCaptor<StudentPass> studentPassArgumentCaptor = ArgumentCaptor.forClass(StudentPass.class);
@@ -124,17 +117,7 @@ class StudentScoreServiceMockTest {
         // Given
         // Fixture 장점은 Builder 패턴의 높은 자유도로 인한 오류를 줄일 수 있다는 점
         StudentScore expectStudentScore = StudentScoreFixture.failed();
-        StudentPass expectStudentFail = StudentPass
-                .builder()
-                .studentName(expectStudentScore.getStudentName())
-                .exam(expectStudentScore.getExam())
-                .averageScore(new MyCalculator()
-                        .add(expectStudentScore.getKoreanScore().doubleValue())
-                        .add(expectStudentScore.getEnglishScore().doubleValue())
-                        .add(expectStudentScore.getMathScore().doubleValue())
-                        .divide(3.0)
-                        .getResult())
-                .build();
+        StudentFail expectStudentFail = StudentFailFixture.create(expectStudentScore);
 
         ArgumentCaptor<StudentScore> studentScoreArgumentCaptor = ArgumentCaptor.forClass(StudentScore.class);
         ArgumentCaptor<StudentFail> studentFailArgumentCaptor = ArgumentCaptor.forClass(StudentFail.class);
@@ -168,36 +151,20 @@ class StudentScoreServiceMockTest {
                 () -> assertEquals(expectStudentFail.getStudentName(), capturedStudentFail.getStudentName()),
                 () -> assertEquals(expectStudentFail.getExam(), capturedStudentFail.getExam()),
                 () -> assertEquals(expectStudentFail.getAverageScore(), capturedStudentFail.getAverageScore())
-        );    }
+        );
+    }
 
     @Test
     @DisplayName("합격자 명단 가져오기 검증")
     void getPassStudentsListTest() {
         // Given
-        StudentPass expectStudent1 = StudentPass.builder()
-                .id(1L)
-                .studentName("onetuks")
-                .exam("testexam")
-                .averageScore(70.0)
-                .build();
-        StudentPass expectStudent2 = StudentPass.builder()
-                .id(2L)
-                .studentName("test")
-                .exam("testexam")
-                .averageScore(80.0)
-                .build();
-        StudentPass notExpectStudent = StudentPass.builder()
-                .id(3L)
-                .studentName("iamnot")
-                .exam("secondexam")
-                .averageScore(90.0)
-                .build();
+        String givenTestExam = "SQLD";
+        StudentPass expectStudent1 = StudentPassFixture.create("홍길동", givenTestExam);
+        StudentPass expectStudent2 = StudentPassFixture.create("임꺽정", givenTestExam);
+        StudentPass notExpectStudent = StudentPassFixture.create("아무개", "자바");
 
-        Mockito.when(studentPassRepository.findAll()).thenReturn(List.of(
-                expectStudent1, expectStudent2, notExpectStudent
-        ));
-
-        String givenTestExam = "testexam";
+        Mockito.when(studentPassRepository.findAll())
+                .thenReturn(List.of(expectStudent1, expectStudent2, notExpectStudent));
 
         // When
         List<ExamPassStudentResponse> result = studentScoreService.getPassStudentsList(givenTestExam);
@@ -217,16 +184,12 @@ class StudentScoreServiceMockTest {
         // Given
         String givenTestExam = "testexam";
 
-        StudentFail expectStudent1 = StudentFail.builder().id(1L).studentName("onetuks").exam(givenTestExam)
-                .averageScore(5.0).build();
-        StudentFail expectStudent2 = StudentFail.builder().id(2L).studentName("test").exam(givenTestExam)
-                .averageScore(59.0).build();
-        StudentFail notExpectStudent = StudentFail.builder().id(3L).studentName("iamnot").exam("secondexam")
-                .averageScore(90.0).build();
+        StudentFail expectStudent1 = StudentFailFixture.create("홍길동", givenTestExam);
+        StudentFail expectStudent2 = StudentFailFixture.create("임꺽정", givenTestExam);
+        StudentFail notExpectStudent = StudentFailFixture.create("아무개", "자바");
 
-        Mockito.when(studentFailRepository.findAll()).thenReturn(List.of(
-                expectStudent1, expectStudent2, notExpectStudent
-        ));
+        Mockito.when(studentFailRepository.findAll())
+                .thenReturn(List.of(expectStudent1, expectStudent2, notExpectStudent));
 
         // When
         List<ExamFailStudentResponse> result = studentScoreService.getFailStudentsList(givenTestExam);
