@@ -11,7 +11,6 @@ import lombok.ToString;
 @AllArgsConstructor
 public class ExamPassStudentResponse {
 
-    private final String studentName;
-    private final Double averageScore;
-
+  private final String studentName;
+  private final Double averageScore;
 }

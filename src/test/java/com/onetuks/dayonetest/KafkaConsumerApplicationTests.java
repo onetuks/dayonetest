@@ -13,27 +13,24 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 @Order(0)
 class KafkaConsumerApplicationTests extends IntegrationTest {
 
-    @Autowired
-    private KafkaProducerService kafkaProducerService;
+  @Autowired private KafkaProducerService kafkaProducerService;
 
-    @MockBean
-    private KafkaConsumerService kafkaConsumerService;
+  @MockBean private KafkaConsumerService kafkaConsumerService;
 
-    @Test
-    void kafkaSendAndConsumeTest() {
-        // Given
-        String topic = "test-topic";
-        String expectValue = "expect-value";
+  @Test
+  void kafkaSendAndConsumeTest() {
+    // Given
+    String topic = "test-topic";
+    String expectValue = "expect-value";
 
-        // When
-        kafkaProducerService.send(topic, expectValue);
+    // When
+    kafkaProducerService.send(topic, expectValue);
 
-        // Then
-        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        Mockito.verify(kafkaConsumerService, Mockito.timeout(5000).times(1))
-                .process(stringArgumentCaptor.capture());
+    // Then
+    ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+    Mockito.verify(kafkaConsumerService, Mockito.timeout(5000).times(1))
+        .process(stringArgumentCaptor.capture());
 
-        Assertions.assertEquals(expectValue, stringArgumentCaptor.getValue());
-    }
-
+    Assertions.assertEquals(expectValue, stringArgumentCaptor.getValue());
+  }
 }

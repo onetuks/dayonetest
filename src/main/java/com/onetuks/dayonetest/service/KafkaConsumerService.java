@@ -7,8 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class KafkaConsumerService {
 
-    public void process(String message) {
-        log.info("processing ... " + message);
-    }
-
+  public void process(String message) {
+    log.info("processing ... " + message);
+  }
 }

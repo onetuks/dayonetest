@@ -3,7 +3,6 @@ package com.onetuks.dayonetest.controller;
 import com.onetuks.dayonetest.controller.request.SaveExamScoreRequest;
 import com.onetuks.dayonetest.controller.response.ExamFailStudentResponse;
 import com.onetuks.dayonetest.controller.response.ExamPassStudentResponse;
-import com.onetuks.dayonetest.model.StudentScore;
 import com.onetuks.dayonetest.service.StudentScoreService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,34 +16,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ScoreApi {
 
-    private final StudentScoreService studentScoreService;
+  private final StudentScoreService studentScoreService;
 
-    @PutMapping(path = "/exam/{exam}/score")
-    public void save(
-            @PathVariable("exam") String exam,
-            @RequestBody SaveExamScoreRequest request
-    ) {
-        studentScoreService.saveScore(
-                request.getStudentName(),
-                exam,
-                request.getKoreanScore(),
-                request.getEnglishScore(),
-                request.getMathScore()
-        );
-    }
+  @PutMapping(path = "/exam/{exam}/score")
+  public void save(@PathVariable("exam") String exam, @RequestBody SaveExamScoreRequest request) {
+    studentScoreService.saveScore(
+        request.getStudentName(),
+        exam,
+        request.getKoreanScore(),
+        request.getEnglishScore(),
+        request.getMathScore());
+  }
 
-    @GetMapping(path = "/exam/{exam}/pass")
-    public List<ExamPassStudentResponse> pass(
-            @PathVariable("exam") String exam
-    ) {
-        return studentScoreService.getPassStudentsList(exam);
-    }
+  @GetMapping(path = "/exam/{exam}/pass")
+  public List<ExamPassStudentResponse> pass(@PathVariable("exam") String exam) {
+    return studentScoreService.getPassStudentsList(exam);
+  }
 
-    @GetMapping(path = "/exam/{exam}/fail")
-    public List<ExamFailStudentResponse> fail(
-            @PathVariable("exam") String exam
-    ) {
-        return studentScoreService.getFailStudentsList(exam);
-    }
-
+  @GetMapping(path = "/exam/{exam}/fail")
+  public List<ExamFailStudentResponse> fail(@PathVariable("exam") String exam) {
+    return studentScoreService.getFailStudentsList(exam);
+  }
 }

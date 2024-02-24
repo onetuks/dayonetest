@@ -5,12 +5,11 @@ import org.junit.jupiter.api.Test;
 
 class LombokTestDataTest {
 
-    @Test
-    public void testDataTest() {
-        TestData testData = new TestData();
-        testData.setName("onetuks");
+  @Test
+  public void testDataTest() {
+    TestData testData = new TestData();
+    testData.setName("onetuks");
 
-        Assertions.assertEquals("onetuks", testData.getName());
-    }
-
+    Assertions.assertEquals("onetuks", testData.getName());
+  }
 }

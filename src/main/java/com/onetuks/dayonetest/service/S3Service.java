@@ -13,30 +13,33 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 @Service
 public class S3Service {
 
-    private final S3Client s3Client;
+  private final S3Client s3Client;
 
-    public void putFile(String bucket, String key, File file) {
-        s3Client.putObject(req -> {
-            req.bucket(bucket);
-            req.key(key);
-        }, RequestBody.fromFile(file));
+  public void putFile(String bucket, String key, File file) {
+    s3Client.putObject(
+        req -> {
+          req.bucket(bucket);
+          req.key(key);
+        },
+        RequestBody.fromFile(file));
+  }
+
+  public File getFile(String bucket, String key) {
+    File file = new File("build/output/getFile.txt");
+
+    ResponseInputStream<GetObjectResponse> res =
+        s3Client.getObject(
+            req -> {
+              req.bucket(bucket);
+              req.key(key);
+            });
+
+    try {
+      FileUtils.writeByteArrayToFile(file, res.readAllBytes());
+    } catch (Exception e) {
+      // ignore
     }
 
-    public File getFile(String bucket, String key) {
-        File file = new File("build/output/getFile.txt");
-
-        ResponseInputStream<GetObjectResponse> res = s3Client.getObject(req -> {
-            req.bucket(bucket);
-            req.key(key);
-        });
-
-        try {
-            FileUtils.writeByteArrayToFile(file, res.readAllBytes());
-        } catch (Exception e) {
-            // ignore
-        }
-
-        return file;
-    }
-
+    return file;
+  }
 }

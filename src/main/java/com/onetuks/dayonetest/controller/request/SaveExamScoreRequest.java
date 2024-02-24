@@ -7,9 +7,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public class SaveExamScoreRequest {
 
-    private final String studentName;
-    private final int koreanScore;
-    private final int englishScore;
-    private final int mathScore;
-
+  private final String studentName;
+  private final int koreanScore;
+  private final int englishScore;
+  private final int mathScore;
 }
