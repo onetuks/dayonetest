@@ -139,3 +139,8 @@ spotless {
         endWithNewline() // 파일 끝에 개행 추가
     }
 }
+
+tasks.register("addGitPreCommitHook", Copy) {
+    from 'script/pre-commit'
+    into '.git/hooks'
+}
