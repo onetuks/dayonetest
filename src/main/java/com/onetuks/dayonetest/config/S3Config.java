@@ -1,4 +1,4 @@
-package com.onetuks.dayonetest.service;
+package com.onetuks.dayonetest.config;
 
 import java.net.URI;
 import java.util.List;

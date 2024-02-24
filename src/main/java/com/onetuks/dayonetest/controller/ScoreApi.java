@@ -3,6 +3,7 @@ package com.onetuks.dayonetest.controller;
 import com.onetuks.dayonetest.controller.request.SaveExamScoreRequest;
 import com.onetuks.dayonetest.controller.response.ExamFailStudentResponse;
 import com.onetuks.dayonetest.controller.response.ExamPassStudentResponse;
+import com.onetuks.dayonetest.model.StudentScore;
 import com.onetuks.dayonetest.service.StudentScoreService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
