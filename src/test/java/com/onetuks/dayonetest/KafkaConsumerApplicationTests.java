@@ -3,12 +3,14 @@ package com.onetuks.dayonetest;
 import com.onetuks.dayonetest.service.KafkaConsumerService;
 import com.onetuks.dayonetest.service.KafkaProducerService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+@Order(0)
 class KafkaConsumerApplicationTests extends IntegrationTest {
 
     @Autowired
