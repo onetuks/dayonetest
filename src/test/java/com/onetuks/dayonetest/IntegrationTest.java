@@ -13,8 +13,10 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.DockerComposeContainer;
+import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 
 @Ignore // 부모클래스인 IntergraionTest 는 테스트를 실행할 필요가 없으므로 @Ignore 어노테이션을 붙여준다.
 @Transactional
@@ -25,6 +27,7 @@ public class IntegrationTest {
     static DockerComposeContainer rdbms;
     static RedisContainer redis;
     static LocalStackContainer aws;
+    static KafkaContainer kafka;
 
     static {
         rdbms = new DockerComposeContainer(new File("infra/test/docker-compose.yaml"))
@@ -50,6 +53,10 @@ public class IntegrationTest {
                 .withServices(LocalStackContainer.Service.S3)
                 .withStartupTimeout(Duration.ofSeconds(600));
         aws.start();
+
+        kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"))
+                .withKraft();
+        kafka.start();
     }
 
     // ApplicationContext 가 처음 초기화될 때 TestContainers 속성이 아니라, application.properties 설정값을 사용하기 때문에 DB 연결 안 되는 문제 해결하려는 목적
@@ -84,6 +91,8 @@ public class IntegrationTest {
             } catch (Exception e) {
                 // ignore
             }
+
+            properties.put("spring.kafka.bootstrap-servers", kafka.getBootstrapServers());
 
             TestPropertyValues.of(properties)
                     .applyTo(applicationContext);
