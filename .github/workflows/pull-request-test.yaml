@@ -1,0 +1,21 @@
+name: Pull Request Test
+
+# 언제 작성한 트리거 동작하는가
+on:
+  pull_request:
+    types:
+      - opened # PR 생성
+      - synchronize # PR 브랜치에 새로운 커밋 푸시될 때
+      - reopened # PR 재오픈
+
+permissions: read-all
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v3.0.2
